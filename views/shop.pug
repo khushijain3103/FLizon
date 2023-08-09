@@ -1,0 +1,32 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title #{docTitle}
+        link(rel="stylesheet", href="/css/main.css")
+        link(rel="stylesheet", href="/css/products.css")
+    body 
+        header.main-header 
+            nav.main-header__nav 
+                ul.main-header__item-list 
+                    li.main-header__item 
+                        a(href="/shop") Shop
+                    li.main-header__item 
+                        a(href="/admin/add-products") Add Product
+        main
+            if prods.length > 0
+                .grid 
+                    each product in prods
+                        article.card.product-item 
+                            header.card__header 
+                                h1.product__title #{product.title}
+                            div.card__image 
+                                img(src="https://www.bing.com/images/search?view=detailV2&ccid=DPFdk5ot&id=94EB6B41C016951EAD31A3A97E707D60CFD29E76&thid=OIP.DPFdk5otPXM70c0w5tZAqQHaDp&mediaurl=https%3a%2f%2fcdn.theconversation.com%2ffiles%2f45159%2fwidth1356x668%2frptgtpxd-1396254731.jpg&exph=668&expw=1356&q=book&simid=608044825669736432&FORM=IRPRST&ck=CA5863D2EBEBABD8460BC351F5C7A188&selectedIndex=3", alt="A book")
+                            div.card__content
+                                h2.product__price #{product.price}
+                                p.product__description #{product.description}
+                            .card__actions
+                                button.btn Add to Cart
+            else
+                <h1>No products found</h1>

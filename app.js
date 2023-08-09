@@ -3,11 +3,15 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
+app.set('view engine' , 'pug');
+app.set('views' , 'views');
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.static(path.join(__dirname , 'public')));
 
-const adminRoutes = require('./routes/admin');
+app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
+
+const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // app.use((req, res, next) => {
@@ -23,7 +27,7 @@ const shopRoutes = require('./routes/shop');
 //This route in string means that it will b executed for routes starting with /products
 //due to which we added /products above the / route
 
-app.use('/admin' , adminRoutes);
+app.use('/admin' , adminData.routes);
 app.use(shopRoutes);
 
 app.use((req, res, next) => {

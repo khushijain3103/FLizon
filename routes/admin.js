@@ -5,13 +5,14 @@ const path = require('path');
 
 const rootDir = require('../utils/path');
 
+const products = [];
+
 //both the routes can have same name as their methods are different
 
 // /admin/add-product => post
 
 router.post('/add-products' , (req, res, next) => {
-    console.log('In products middleware!');
-   console.log(req.body);
+    products.push({title: req.body.title});
     res.redirect('/'); // Sends a response
 });
 
@@ -22,4 +23,5 @@ router.get('/add-products' , (req, res, next) => {
     res.sendFile(path.join(rootDir , 'views' , 'add-product.html')) // Sends a response
 });
 
-module.exports = router;
+exports.routes = router;
+exports.products = products;
