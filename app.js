@@ -11,8 +11,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const pageNotFoundController = require('./controllers/404');
 
 // app.use((req, res, next) => {
 //     console.log('In the middleware!');
@@ -27,12 +28,10 @@ const shopRoutes = require('./routes/shop');
 //This route in string means that it will b executed for routes starting with /products
 //due to which we added /products above the / route
 
-app.use('/admin' , adminData.routes);
+app.use('/admin' , adminRoutes);
 app.use(shopRoutes);
 
-app.use((req, res, next) => {
-    res.status(404).render('404' , {docTitle: 'Page Not Found'});
-});
+app.use(pageNotFoundController.pageNotFound);
 
 // const server = http.createServer(app);
 // server.listen(4000 ,() => console.log('Server is running...'));
