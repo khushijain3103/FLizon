@@ -1,3 +1,12 @@
+.product-form {
+    margin: 3rem auto;
+    width: 90%;
+    max-width: 40rem;
+    font-size: 1.2rem;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+
 .form-control {
     margin: 1rem 0;
 }
