@@ -3,7 +3,15 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
-app.set('view engine' , 'pug');
+const expressHbs = require('express-handlebars');
+
+app.engine('hbs', expressHbs.engine({
+    extname: "hbs",
+    defaultLayout:"main-layout",
+    layoutsDir: "views/layouts/"
+  }));
+
+app.set('view engine' , 'hbs');
 app.set('views' , 'views');
 
 const bodyParser = require('body-parser');

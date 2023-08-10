@@ -2,7 +2,7 @@ const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
     // res.sendFile(path.join(rootDir , 'views' , 'add-product.html')) // Sends a response
-    res.render('add-product' , {docTitle: 'Add Product' , path: '/admin/add-product'})
+    res.render('add-product' , {docTitle: 'Add Product' , path: '/admin/add-product' , formCSS: true , activeShop: true})
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -14,7 +14,7 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
     Product.fetchAll((products) => {
-        res.render('shop' , {prods: products , docTitle: 'Shop' , path: '/'
+        res.render('shop' , {prods: products , docTitle: 'Shop' , path: '/' , hasProducts: products.length > 0 , activeShop: true , productCSS: true
         });
     });
 
