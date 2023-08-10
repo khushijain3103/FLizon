@@ -6,7 +6,12 @@ const adminData = require('./admin');
 
 const productsController = require('../controllers/products');
 
+router.get('/' , );
 
-router.get('/' , productsController.getProducts);
+router.get('/products' , productsController.getProducts);
+
+router.get('/cart' ,);
+
+router.get('/checkout' ,);
 
 module.exports = router;

@@ -16,4 +16,6 @@ router.post('/add-product' , productsController.postAddProduct );
 
 router.get('/add-product' , productsController.getAddProduct);
 
+router.get('/products' , productsController.getAdminProducts);
+
 module.exports = router;
