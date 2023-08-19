@@ -11,6 +11,15 @@ exports.getProducts = (req, res, next) => {
     // res.sendFile(path.join(rootDir , 'views' , 'shops.html')); // Sends a response
 };
 
+exports.getProduct = (req, res, next) => {
+    const prodId = req.params.productId;
+    console.log(prodId);
+    Product.findById(prodId, product => {
+        res.render('shop/product-detail', {product: product, docTitle: product.title, path: '/shop/products'});
+    });
+ 
+};
+
 exports.getIndex = (req, res, next) => {
     Product.fetchAll((products) => {
         res.render('shop/index', {
