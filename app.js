@@ -37,7 +37,7 @@ const pageNotFoundController = require('./controllers/404');
 //due to which we added /products above the / route
 
 app.use('/admin' , adminRoutes);
-app.use('/shop' , shopRoutes);
+app.use(shopRoutes);
 
 app.use(pageNotFoundController.pageNotFound);
 
