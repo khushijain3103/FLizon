@@ -28,3 +28,7 @@ exports.getCheckout = (req, res, next) => {
     res.render('shop/checkout', {docTitle: 'Checkout', path: '/checkout'});
 };
 
+
+exports.getOrders = (req, res, next) => {
+    res.render('shop/orders', {docTitle: 'Your Orders', path: '/orders'});
+};
