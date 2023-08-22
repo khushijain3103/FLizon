@@ -14,15 +14,16 @@
             </div>
             <div class="form-control">
                 <label for="imageUrl">Image URL</label>
-                <input type="text" name="imageURL" id="imageUrl" value="<% if(editing) {%> <%= product.imageURL %> <%} %>" >
+                <input  name="imageURL" id="imageUrl" value="<% if(editing) {%> <%= product.imageURL %> <%} %>" >
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
-                <input type="number" name="price" id="price" step="0.01" value="<% if(editing) {%> <%= product.price %> <%} %>">
+                <input type="number" name="price" id="price" step="0.01" value="<% if(editing) {%> <%- Number(price) %> <%} %>">
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
                 <textarea name="description" id="description" rows="5"> <% if(editing) {%> <%= product.description %> <%} %> </textarea>
+                <% if(editing) { %> <input type="hidden" name="productId" value="<%= product.id %>"/> <%} %>
             </div>
 
             <button class="btn" type="submit"> <% if(editing) {%>Update Product <%} else {%> Add Product <%} %> </button>
