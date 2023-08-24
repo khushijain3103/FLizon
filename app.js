@@ -15,6 +15,9 @@ app.set('view engine' , 'ejs');
 app.set('views' , 'views');
 
 const bodyParser = require('body-parser');
+
+const db = require('./utils/database');
+
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
@@ -22,6 +25,8 @@ app.use(express.static(path.join(__dirname , 'public')));   //to serve static fi
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const pageNotFoundController = require('./controllers/404');
+
+db.execute('SELECT * FROM products').then().catch();
 
 // app.use((req, res, next) => {
 //     console.log('In the middleware!');
