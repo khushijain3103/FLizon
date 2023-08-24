@@ -16,7 +16,7 @@ app.set('views' , 'views');
 
 const bodyParser = require('body-parser');
 
-const db = require('./utils/database');
+// const db = require('./utils/database');
 
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -26,7 +26,17 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const pageNotFoundController = require('./controllers/404');
 
-db.execute('SELECT * FROM products').then().catch();
+// db.execute('SELECT * FROM products')
+// .then(
+//     (result) => {
+//         console.log(result[0] , result[1]);
+//     }
+// )
+// .catch(
+//     (err) => {
+//         console.log(err);
+//     }
+// );
 
 // app.use((req, res, next) => {
 //     console.log('In the middleware!');
@@ -52,4 +62,6 @@ app.use(pageNotFoundController.pageNotFound);
 // instead of using http.createServer we can use app.listen
 //it does both the things for us
 
-app.listen(4000, () => console.log('Server is running...'));
+const port = 3000;
+
+app.listen(port, () => console.log('Server is running... on port ' + port));
