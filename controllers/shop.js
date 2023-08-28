@@ -2,15 +2,27 @@ const Product = require('../models/product');
 const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
-    .then(
-        ([rows , fieldData]) => {
+    // Product.fetchAll()
+    // .then(
+    //     ([rows , fieldData]) => {
+    //         res.render('shop/product-list', {
+    //             prods: rows, docTitle: 'All Products', path: '/shop/products'
+    //         });
+    //     }
+    // )
+    // .catch(
+    //     err => {
+    //         console.log(err);
+    //     }
+    // );
+
+    Product.findAll().then(
+        products => {
             res.render('shop/product-list', {
-                prods: rows, docTitle: 'All Products', path: '/shop/products'
+                prods: products, docTitle: 'All Products', path: '/shop/products'
             });
         }
-    )
-    .catch(
+    ).catch(
         err => {
             console.log(err);
         }
@@ -20,30 +32,43 @@ exports.getProducts = (req, res, next) => {
 exports.getProduct = (req, res, next) => {
     const prodId = req.params.productId;
     console.log(prodId);
-    Product.findById(prodId)
-    .then(([product]) => {
+    Product.findByPk(prodId)
+    .then((product) => {
         console.log(product);
-        res.render('shop/product-detail', {product: product[0], docTitle: product[0].title, path: '/shop/products'});
+        res.render('shop/product-detail', {product: product, docTitle: product.title, path: '/shop/products'});
     })
     .catch(err => console.log(err));
  
 };
 
 exports.getIndex = (req, res, next) => {
-    Product.fetchAll()
-    .then(
-        ([rows , fieldData]) => {
-            res.render('shop/product-list', {
-                prods: rows, docTitle: 'Shop', path: '/'
+    // Product.fetchAll()
+    // .then(
+    //     ([rows , fieldData]) => {
+    //         res.render('shop/product-list', {
+    //             prods: rows, docTitle: 'Shop', path: '/'
+    //         });
+    //     }
+    // )
+    // .catch(
+    //     err => {
+    //         console.log(err);
+    //     }
+    // );
+    // res.sendFile(path.join(rootDir , 'views' , 'shops.html')); // Sends a response
+
+    Product.findAll().then(
+        products => {
+            res.render('shop/index', {
+                prods: products, docTitle: 'Shop', path: '/'
             });
         }
-    )
-    .catch(
+    ).catch(
         err => {
             console.log(err);
         }
     );
-    // res.sendFile(path.join(rootDir , 'views' , 'shops.html')); // Sends a response
+
 };
 
 exports.getCart = (req, res, next) => {
