@@ -158,6 +158,13 @@ exports.postCartDeleteProduct = (req, res, next) => {
     ).then(
         products => {
             const product = products[0];
+            if(!product) {
+                return;
+            }
+            const newQuantity = product.cartItem.quantity - 1;
+            if(newQuantity > 0) {
+                return product.cartItem.update({quantity: newQuantity});
+            }
             return product.cartItem.destroy();
         }
     ).then(
@@ -169,15 +176,63 @@ exports.postCartDeleteProduct = (req, res, next) => {
             console.log(err);
         }
     );
-    
+
 
 };
-
-exports.getCheckout = (req, res, next) => {
-    res.render('shop/checkout', {docTitle: 'Checkout', path: '/checkout'});
-};
-
 
 exports.getOrders = (req, res, next) => {
-    res.render('shop/orders', {docTitle: 'Your Orders', path: '/orders'});
+    req.user.getOrders({include : ['products']}).then(   
+        orders => {
+            console.log(orders);
+            res.render('shop/orders', {docTitle: 'Your Orders', path: '/orders', orders: orders});
+        }
+    ).catch(
+        err => {
+            console.log(err);
+        }
+    );
+};
+
+exports.postOrder = (req, res, next) => {
+    let fetchedCart;
+
+    req.user.getCart().then(
+        cart => {
+            fetchedCart = cart;
+            return cart.getProducts();
+        }
+    ).then(
+        products => {
+            return req.user.createOrder().then(
+                order => {
+                    return order.addProducts(
+                        products.map(
+                            product => {
+                                product.orderItem = {quantity: product.cartItem.quantity};
+                                return product;
+                            }
+                        )
+                    );
+                }
+            ).catch(
+                err => {
+                    console.log(err);
+                }
+            );
+        }
+    ).then(
+        result => {
+            return fetchedCart.setProducts(null);
+        }
+    )
+    .then(
+        result => {
+            res.redirect('/orders');
+        }
+    )
+    .catch(
+        err => {
+            console.log(err);
+        }
+    );
 };

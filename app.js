@@ -23,6 +23,8 @@ const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -91,6 +93,9 @@ User.hasOne(Cart); //adds a userId column in cart table
 Cart.belongsTo(User); //adds a userId column in cart table
 Cart.belongsToMany(Product , {through: CartItem}); //adds a cartId column in products table
 Product.belongsToMany(Cart , {through: CartItem}); //adds a productId column in cart table
+Order.belongsTo(User); //adds a userId column in orders table
+User.hasMany(Order); //adds a userId column in orders table
+Order.belongsToMany(Product , {through: OrderItem}); //adds a orderId column in products table
 
 sequelize
 .sync() 
