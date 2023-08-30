@@ -21,6 +21,8 @@ const bodyParser = require('body-parser');
 const sequelize = require('./utils/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -85,12 +87,16 @@ app.use(pageNotFoundController.pageNotFound);
 
 Product.belongsTo(User , {constraints: true , onDelete: 'CASCADE'}); //adds a userId column in products table
 User.hasMany(Product); //adds a userId column in products table
+User.hasOne(Cart); //adds a userId column in cart table
+Cart.belongsTo(User); //adds a userId column in cart table
+Cart.belongsToMany(Product , {through: CartItem}); //adds a cartId column in products table
+Product.belongsToMany(Cart , {through: CartItem}); //adds a productId column in cart table
 
 sequelize
-.sync()
+.sync() 
 .then(   //initialise object present in models folder if they are not already present in database
     result => {
-        return User.findByPk(1);
+        return User.findByPk(1)
     }
 )
 .then(
@@ -104,7 +110,12 @@ sequelize
 .then(
     user => {
         // console.log(user);
-        app.listen(3000 ,() => console.log('Server is running...'));
+        return user.createCart();
+    }
+)
+.then(
+    cart => {
+        app.listen(4000 ,() => console.log('Server is running...'));
     }
 )
 .catch(
