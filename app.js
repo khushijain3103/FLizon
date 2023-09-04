@@ -18,38 +18,48 @@ const bodyParser = require('body-parser');
 
 // const db = require('./utils/database');
 
-const sequelize = require('./utils/database');
-const Product = require('./models/product');
-const User = require('./models/user');
-const Cart = require('./models/cart');
-const CartItem = require('./models/cart-item');
-const Order = require('./models/order');
-const OrderItem = require('./models/order-item');
+//used for importing models in sequelize
+
+// const sequelize = require('./utils/database');
+// const Product = require('./models/product');
+// const User = require('./models/user');
+// const Cart = require('./models/cart');
+// const CartItem = require('./models/cart-item');
+// const Order = require('./models/order');
+// const OrderItem = require('./models/order-item');
+
+const mongoConnect = require('./utils/database').mongoConnect;
 
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
 
 app.use((req, res, next) => {
-    User.findByPk(1)
-    .then(
-        user => {
-            req.user = user;
-            next();
-        }
-    )
-    .catch(
-        err => {
-            console.log(err);
-        }
-    );
+
+    //sql suyntax for creating table
+
+    // User.findByPk(1)
+    // .then(
+    //     user => {
+    //         req.user = user;
+    //         next();
+    //     }
+    // )
+    // .catch(
+    //     err => {
+    //         console.log(err);
+    //     }
+    // );
+
+    next();
+
 });
 
 
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const pageNotFoundController = require('./controllers/404');
+// const pageNotFoundController = require('./controllers/404');
 
 // db.execute('SELECT * FROM products')
 // .then(
@@ -79,7 +89,7 @@ const pageNotFoundController = require('./controllers/404');
 app.use('/admin' , adminRoutes);
 app.use(shopRoutes);
 
-app.use(pageNotFoundController.pageNotFound);
+// app.use(pageNotFoundController.pageNotFound);
 
 // const server = http.createServer(app);
 // server.listen(4000 ,() => console.log('Server is running...'));
@@ -87,45 +97,56 @@ app.use(pageNotFoundController.pageNotFound);
 // instead of using http.createServer we can use app.listen
 //it does both the things for us
 
-Product.belongsTo(User , {constraints: true , onDelete: 'CASCADE'}); //adds a userId column in products table
-User.hasMany(Product); //adds a userId column in products table
-User.hasOne(Cart); //adds a userId column in cart table
-Cart.belongsTo(User); //adds a userId column in cart table
-Cart.belongsToMany(Product , {through: CartItem}); //adds a cartId column in products table
-Product.belongsToMany(Cart , {through: CartItem}); //adds a productId column in cart table
-Order.belongsTo(User); //adds a userId column in orders table
-User.hasMany(Order); //adds a userId column in orders table
-Order.belongsToMany(Product , {through: OrderItem}); //adds a orderId column in products table
+//sql syntax for creating table
 
-sequelize
-.sync() 
-.then(   //initialise object present in models folder if they are not already present in database
-    result => {
-        return User.findByPk(1)
-    }
-)
-.then(
-    user => {
-        if(!user) {
-            return User.create({name: 'Khushi' , email: 'khushi@test.com'});
-        }
-        return user;
-    }
-)
-.then(
-    user => {
-        // console.log(user);
-        return user.createCart();
-    }
-)
-.then(
-    cart => {
+// Product.belongsTo(User , {constraints: true , onDelete: 'CASCADE'}); //adds a userId column in products table
+// User.hasMany(Product); //adds a userId column in products table
+// User.hasOne(Cart); //adds a userId column in cart table
+// Cart.belongsTo(User); //adds a userId column in cart table
+// Cart.belongsToMany(Product , {through: CartItem}); //adds a cartId column in products table
+// Product.belongsToMany(Cart , {through: CartItem}); //adds a productId column in cart table
+// Order.belongsTo(User); //adds a userId column in orders table
+// User.hasMany(Order); //adds a userId column in orders table
+// Order.belongsToMany(Product , {through: OrderItem}); //adds a orderId column in products table
+
+// sequelize
+// .sync() 
+// .then(   //initialise object present in models folder if they are not already present in database
+//     result => {
+//         return User.findByPk(1)
+//     }
+// )
+// .then(
+//     user => {
+//         if(!user) {
+//             return User.create({name: 'Khushi' , email: 'khushi@test.com'});
+//         }
+//         return user;
+//     }
+// )
+// .then(
+//     user => {
+//         // console.log(user);
+//         return user.createCart();
+//     }
+// )
+// .then(
+//     cart => {
+//         app.listen(4000 ,() => console.log('Server is running...'));
+//     }
+// )
+// .catch(
+//     err => {
+//         console.log(err);
+//     }
+// );
+
+
+//mongodb syntax for creating table
+
+mongoConnect(
+    () => {
         app.listen(4000 ,() => console.log('Server is running...'));
-    }
-)
-.catch(
-    err => {
-        console.log(err);
     }
 );
 
