@@ -30,6 +30,8 @@ const bodyParser = require('body-parser');
 
 const mongoConnect = require('./utils/database').mongoConnect;
 
+const User  = require('./models/user');
+
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
@@ -38,20 +40,21 @@ app.use((req, res, next) => {
 
     //sql suyntax for creating table
 
-    // User.findByPk(1)
-    // .then(
-    //     user => {
-    //         req.user = user;
-    //         next();
-    //     }
-    // )
-    // .catch(
-    //     err => {
-    //         console.log(err);
-    //     }
-    // );
+    User.findById("64f63440f5f61b518263428a")
+    .then(
+        user => {
+            console.log(user);
+            req.user = new User(user.name , user.email , user.cart , user._id);
+            next();
+        }
+    )
+    .catch(
+        err => {
+            console.log(err);
+        }
+    );
 
-    next();
+    // next();
 
 });
 
