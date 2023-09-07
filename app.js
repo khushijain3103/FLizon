@@ -1,4 +1,5 @@
 const path = require('path');
+require('dotenv').config();
 
 const express = require('express');
 const app = express();
@@ -16,6 +17,8 @@ app.set('views' , 'views');
 
 const bodyParser = require('body-parser');
 
+const mongoose = require('mongoose');
+
 // const db = require('./utils/database');
 
 //used for importing models in sequelize
@@ -28,7 +31,7 @@ const bodyParser = require('body-parser');
 // const Order = require('./models/order');
 // const OrderItem = require('./models/order-item');
 
-const mongoConnect = require('./utils/database').mongoConnect;
+// const mongoConnect = require('./utils/database').mongoConnect;
 
 const User  = require('./models/user');
 
@@ -62,6 +65,7 @@ app.use((req, res, next) => {
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const { mongo } = require('mongoose');
 // const pageNotFoundController = require('./controllers/404');
 
 // db.execute('SELECT * FROM products')
@@ -147,9 +151,19 @@ app.use(shopRoutes);
 
 //mongodb syntax for creating table
 
-mongoConnect(
-    () => {
+// mongoConnect(
+//     () => {
+//         app.listen(4000 ,() => console.log('Server is running...'));
+//     }
+// );
+
+mongoose.connect(process.env.URI).then(
+    result => {
         app.listen(4000 ,() => console.log('Server is running...'));
+    }
+).catch(
+    err => {
+        console.log(err);
     }
 );
 
