@@ -43,11 +43,11 @@ app.use((req, res, next) => {
 
     //sql suyntax for creating table
 
-    User.findById("64f63440f5f61b518263428a")
+    User.findById("64ff2029d258406bbb2b2e33")
     .then(
         user => {
             console.log(user);
-            req.user = new User(user.name , user.email , user.cart , user._id);
+            req.user = user;
             next();
         }
     )
@@ -65,7 +65,6 @@ app.use((req, res, next) => {
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const { mongo } = require('mongoose');
 // const pageNotFoundController = require('./controllers/404');
 
 // db.execute('SELECT * FROM products')
@@ -159,6 +158,21 @@ app.use(shopRoutes);
 
 mongoose.connect(process.env.URI).then(
     result => {
+        User.findOne().then(
+            user => {
+                if(!user) {
+                    const user = new User({
+                        name: 'Khushi',
+                        email: 'khushi@test.com',
+                        cart: {
+                            items: []
+                        }
+                    });
+                    user.save();
+                }
+            }
+        );
+
         app.listen(4000 ,() => console.log('Server is running...'));
     }
 ).catch(

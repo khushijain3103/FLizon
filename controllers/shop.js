@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 // const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
@@ -16,7 +17,7 @@ exports.getProducts = (req, res, next) => {
     //     }
     // );
 
-    Product.fetchAll().then(
+    Product.find().then(
         products => {
             res.render('shop/product-list', {
                 prods: products, docTitle: 'All Products', path: '/shop/products'
@@ -33,12 +34,12 @@ exports.getProduct = (req, res, next) => {
     const prodId = req.params.productId;
     console.log(prodId);
     Product.findById(prodId)
-    .then((product) => {
-        console.log(product);
-        res.render('shop/product-detail', {product: product, docTitle: product.title, path: '/shop/products'});
-    })
-    .catch(err => console.log(err));
- 
+        .then((product) => {
+            console.log(product);
+            res.render('shop/product-detail', { product: product, docTitle: product.title, path: '/shop/products' });
+        })
+        .catch(err => console.log(err));
+
 };
 
 exports.getIndex = (req, res, next) => {
@@ -57,7 +58,7 @@ exports.getIndex = (req, res, next) => {
     // );
     // res.sendFile(path.join(rootDir , 'views' , 'shops.html')); // Sends a response
 
-    Product.fetchAll().then(
+    Product.find().then(
         products => {
             res.render('shop/index', {
                 prods: products, docTitle: 'Shop', path: '/'
@@ -86,15 +87,21 @@ exports.getCart = (req, res, next) => {
     //     });
     // });
 
-    req.user.getCart().then(
-                products => {
-                    res.render('shop/cart', {docTitle: 'Your Cart', path: '/cart', products: products});
-                }
-            ).catch(
-                err => {
-                    console.log(err);
-                }
-            );
+    console.log(req.user.cart.items);
+
+    req.user
+        .populate("cart.items.productId") //populate does not return a promise so we use execPopulate
+        .then(
+            user => {
+                const products = user.cart.items;
+                console.log(user);
+                res.render('shop/cart', { docTitle: 'Your Cart', path: '/cart', products: products });
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        );
 
 };
 
@@ -103,7 +110,7 @@ exports.postCart = (req, res, next) => {
     Product.findById(prodId).then(
         product => {
             return req.user.addToCart(product);
-        }   
+        }
     ).then(
         result => {
             console.log(result);
@@ -127,7 +134,7 @@ exports.postCart = (req, res, next) => {
     //     if (products.length > 0) {
     //       product = products[0];
     //     }
-  
+
     //     if (product) {
     //       const oldQuantity = product.cartItem.quantity;
     //       newQuantity = oldQuantity + 1;
@@ -144,7 +151,7 @@ exports.postCart = (req, res, next) => {
     //     res.redirect('/cart');
     //   })
     //   .catch(err => console.log(err));
-  };
+};
 
 
 
@@ -183,16 +190,28 @@ exports.getOrders = (req, res, next) => {
     //     }
     // );
 
-    req.user.getOrders().then(
+    // req.user.getOrders().then(
+    //     orders => {
+    //         console.log(orders);
+    //         res.render('shop/orders', { docTitle: 'Your Orders', path: '/orders', orders: orders });
+    //     }
+    // ).catch(
+    //     err => {
+    //         console.log(err);
+    //     }
+    // );
+
+    Order.find({ "user.userId": req.user._id }).then(
         orders => {
-            console.log(orders);
-            res.render('shop/orders', {docTitle: 'Your Orders', path: '/orders', orders: orders});
+            res.render('shop/orders', { docTitle: 'Your Orders', path: '/orders', orders: orders });
         }
     ).catch(
         err => {
             console.log(err);
         }
     );
+    
+
 };
 
 exports.postOrder = (req, res, next) => {
@@ -238,13 +257,35 @@ exports.postOrder = (req, res, next) => {
     //     }
     // );
 
-    req.user.addOrder().then(
-        result => {
-            res.redirect('/orders');
-        }
-    ).catch(
-        err => {
-            console.log(err);
-        }
-    );
+    req.user
+        .populate("cart.items.productId") //populate does not return a promise so we use execPopulate
+        .then(
+            user => {
+                const products = user.cart.items.map(i => {
+                    return { quantity: i.quantity, product: { ...i.productId._doc } };
+                }
+                );
+                console.log(products);
+                const order = new Order({
+                    user: {
+                        name: req.user.name,
+                        userId: req.user
+                    },
+                    products: products
+                });
+                return order.save();
+            }
+        ).then(
+            result => {
+                return req.user.clearCart();
+            }
+        ).then(
+            () => {
+                res.redirect('/orders');
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        );
 };
