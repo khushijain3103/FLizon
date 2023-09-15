@@ -20,7 +20,7 @@ exports.getProducts = (req, res, next) => {
     Product.find().then(
         products => {
             res.render('shop/product-list', {
-                prods: products, docTitle: 'All Products', path: '/shop/products'
+                prods: products, docTitle: 'All Products', path: '/products'
             });
         }
     ).catch(
