@@ -18,6 +18,8 @@ app.set('views' , 'views');
 const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 // const db = require('./utils/database');
 
@@ -34,16 +36,28 @@ const mongoose = require('mongoose');
 // const mongoConnect = require('./utils/database').mongoConnect;
 
 const User  = require('./models/user');
+const store = new MongoDBStore({
+    uri: process.env.URI,
+    collection: 'sessions'
+});
 
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
 
+app.use(session(
+    {secret : "my secret" , resave: false , saveUninitialized: false , store: store}
+))
+
 app.use((req, res, next) => {
 
     //sql suyntax for creating table
 
-    User.findById("64ff2029d258406bbb2b2e33")
+    if(!req.session.user) {
+        return next();
+    }
+
+    User.findById(req.session.user._id)
     .then(
         user => {
             console.log(user);

@@ -3,7 +3,7 @@ const mongodb = require('mongodb');
 
 exports.getAddProduct = (req, res, next) => {
     // res.sendFile(path.join(rootDir , 'views' , 'add-product.html')) // Sends a response
-    res.render('admin/edit-product' , {docTitle: 'Add Product' , path: '/admin/add-product' , editing: false})
+    res.render('admin/edit-product' , {docTitle: 'Add Product' , path: '/admin/add-product' , editing: false , isAuthenticated: req.session.isLoggedIn})
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -51,7 +51,7 @@ exports.getEditProduct = (req, res, next) => {
             if(!product) {
                 return res.redirect('/');
             }
-            res.render('admin/edit-product' , {docTitle: 'Edit Product' , path: '/admin/edit-product' , editing: editMode , product: product});
+            res.render('admin/edit-product' , {docTitle: 'Edit Product' , path: '/admin/edit-product' , editing: editMode , product: product , isAuthenticated: req.session.isLoggedIn});
         }
     )
     .catch(
@@ -116,7 +116,7 @@ exports.getAdminProducts = (req, res, next) => {
     .then(
         products => {
             res.render('admin/products', {
-                prods: products, docTitle: 'Admin Products', path: '/admin/products'
+                prods: products, docTitle: 'Admin Products', path: '/admin/products' , isAuthenticated: req.session.isLoggedIn
             });
         }
     ).catch(
