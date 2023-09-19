@@ -20,6 +20,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const flash = require('connect-flash');
 
 // const db = require('./utils/database');
 
@@ -41,6 +43,9 @@ const store = new MongoDBStore({
     collection: 'sessions'
 });
 
+
+const csrfProtection = csrf();
+
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
@@ -48,6 +53,9 @@ app.use(express.static(path.join(__dirname , 'public')));   //to serve static fi
 app.use(session(
     {secret : "my secret" , resave: false , saveUninitialized: false , store: store}
 ))
+
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
 
@@ -73,6 +81,16 @@ app.use((req, res, next) => {
 
     // next();
 
+});
+
+
+
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    console.log("app");
+    res.locals.csrfToken = req.csrfToken();
+    console.log("app" , req.csrfToken());   
+    next();
 });
 
 
@@ -106,6 +124,8 @@ const authRoutes = require('./routes/auth');
 
 //This route in string means that it will b executed for routes starting with /products
 //due to which we added /products above the / route
+
+
 
 app.use('/admin' , adminRoutes);
 app.use(shopRoutes);
@@ -174,20 +194,20 @@ app.use(authRoutes);
 
 mongoose.connect(process.env.URI).then(
     result => {
-        User.findOne().then(
-            user => {
-                if(!user) {
-                    const user = new User({
-                        name: 'Khushi',
-                        email: 'khushi@test.com',
-                        cart: {
-                            items: []
-                        }
-                    });
-                    user.save();
-                }
-            }
-        );
+        // User.findOne().then(
+        //     user => {
+        //         if(!user) {
+        //             const user = new User({
+        //                 name: 'Khushi',
+        //                 email: 'khushi@test.com',
+        //                 cart: {
+        //                     items: []
+        //                 }
+        //             });
+        //             user.save();
+        //         }
+        //     }
+        // );
 
         app.listen(4000 ,() => console.log('Server is running...'));
     }

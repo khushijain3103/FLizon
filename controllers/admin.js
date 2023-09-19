@@ -3,7 +3,7 @@ const mongodb = require('mongodb');
 
 exports.getAddProduct = (req, res, next) => {
     // res.sendFile(path.join(rootDir , 'views' , 'add-product.html')) // Sends a response
-    res.render('admin/edit-product' , {docTitle: 'Add Product' , path: '/admin/add-product' , editing: false , isAuthenticated: req.session.isLoggedIn})
+    res.render('admin/edit-product' , {docTitle: 'Add Product' , path: '/admin/add-product' , editing: false})
 };
 
 exports.postAddProduct = (req, res, next) => {
