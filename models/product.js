@@ -121,7 +121,7 @@ const productSchema = new Schema({
     },
     imageURL: {
         type: String,
-        required: true
+        // required: true
     },
     description: {
         type: String,
