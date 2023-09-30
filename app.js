@@ -58,6 +58,15 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    console.log("app");
+    res.locals.csrfToken = req.csrfToken();
+    console.log("app" , req.csrfToken());   
+    next();
+});
+
+
+app.use((req, res, next) => {
 
     //sql suyntax for creating table
 
@@ -68,15 +77,19 @@ app.use((req, res, next) => {
     User.findById(req.session.user._id)
     .then(
         user => {
+            if(!user) {
+                return next();
+            }
             console.log(user);
             req.user = user;
             next();
         }
     )
     .catch(
-        err => {
-            console.log(err);
+        err =>{
+            next(new Error(err))
         }
+        
     );
 
     // next();
@@ -85,20 +98,13 @@ app.use((req, res, next) => {
 
 
 
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    console.log("app");
-    res.locals.csrfToken = req.csrfToken();
-    console.log("app" , req.csrfToken());   
-    next();
-});
 
 
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-// const pageNotFoundController = require('./controllers/404');
+const pageNotFoundController = require('./controllers/404');
 
 // db.execute('SELECT * FROM products')
 // .then(
@@ -131,7 +137,12 @@ app.use('/admin' , adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-// app.use(pageNotFoundController.pageNotFound);
+app.use(pageNotFoundController.pageNotFound);
+app.use(pageNotFoundController.get500);
+
+// app.use((error , req , res , next) => {
+//     res.status(500).render('500' , {docTitle: 'Error' , path: '/500' , isAuthenticated: req.session.isLoggedIn});
+// });
 
 // const server = http.createServer(app);
 // server.listen(4000 ,() => console.log('Server is running...'));
