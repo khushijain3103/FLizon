@@ -1,6 +1,8 @@
 const Product = require('../models/product');
 const mongodb = require('mongodb');
 
+const fileHelper = require('../utils/file');
+
 const { validationResult } = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
@@ -161,6 +163,9 @@ exports.postEditProduct = (req, res, next) => {
             product.title = updatedTitle;
             product.price = updatedPrice;
             product.description = updatedDescription;
+            if (updatedImage) {
+                fileHelper.deleteFile(product.imageURL);
+            }
             product.imageURL = updatedImage ? updatedImage.path : product.imageURL;
             return product.save().then(
                 () => {
@@ -185,20 +190,29 @@ exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
     console.log(prodId);
 
-    Product.deleteOne({ _id: prodId, userId: req.user._id })
-        .then(
-            () => {
-                res.redirect('/admin/products'); // Sends a response
+    Product.findById(prodId).then(
+        product => {
+            if (!product) {
+                return next(new Error('Product not found'));
             }
-        ).catch(
-            err => {
-                const error = new Error(err);
-                error.httpStatusCode = 500;
-                return next(error);
-                
-                
-            }
-        );
+            fileHelper.deleteFile(product.imageURL);
+            return Product.deleteOne({ _id: prodId, userId: req.user._id });
+        }
+    ).then(
+        () => {
+            console.log('deleted product');
+            res.redirect('/admin/products'); // Sends a response
+        }
+    ).catch(
+        err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+            
+            
+        }
+    );
+
 };
 
 
