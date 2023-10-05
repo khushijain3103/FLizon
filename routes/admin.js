@@ -18,7 +18,7 @@ router.post('/add-product', isAuth,
     [
         check("title", "title should be alphanumeric with minimum 3 characters")
             .isAlphanumeric().isLength({ min: 3 }).trim(),
-            check("imageURL", "imageURL should be a valid URL").isURL(),
+            // check("imageURL", "imageURL should be a valid URL").isURL(),
         check("price", "price should be a number").isFloat(),
         check("description", "description should be  with minimum 5 characters")
             .isLength({ min: 5, max: 400 }).trim()
@@ -32,7 +32,7 @@ router.post('/edit-product', isAuth,
 [
     check("title", "title should be alphanumeric with minimum 3 characters")
         .isAlphanumeric().isLength({ min: 3 }).trim(),
-        check("imageURL", "imageURL should be a valid URL").isURL(),
+        // check("imageURL", "imageURL should be a valid URL").isURL(),
     check("price", "price should be a number").isFloat(),
     check("description", "description should be  with minimum 5 characters")
         .isLength({ min: 5, max: 400 }).trim()

@@ -16,6 +16,7 @@ app.set('view engine' , 'ejs');
 app.set('views' , 'views');
 
 const bodyParser = require('body-parser');
+const multer = require('multer');
 
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -44,11 +45,33 @@ const store = new MongoDBStore({
 });
 
 
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+       
+        cb(null, 'images'); //null is for error
+    }
+    , filename: (req, file, cb) => {
+        console.log("fileStorage");
+        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname); //null is for error
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype == 'image/jpeg') {
+        cb(null, true);
+    }
+    else {
+        cb(null, false);
+    }
+}
+
 const csrfProtection = csrf();
 
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(multer({storage : fileStorage , fileFilter : fileFilter}).single('image'));
 
 app.use(express.static(path.join(__dirname , 'public')));   //to serve static files like css, js, images etc
+app.use('/images' , express.static(path.join(__dirname , 'images')));   
 
 app.use(session(
     {secret : "my secret" , resave: false , saveUninitialized: false , store: store}
