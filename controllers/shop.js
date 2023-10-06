@@ -7,6 +7,8 @@ const pdfDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
+const ITEMS_PER_PAGE = 1;
+
 exports.getProducts = (req, res, next) => {
     // Product.fetchAll()
     // .then(
@@ -22,10 +24,34 @@ exports.getProducts = (req, res, next) => {
     //     }
     // );
 
-    Product.find().then(
+    // Product.find().then(
+    //     products => {
+    //         res.render('shop/product-list', {
+    //             prods: products, docTitle: 'All Products', path: '/products', isAuthenticated: req.session.isLoggedIn
+    //         });
+    //     }
+    // ).catch(
+    //     err => {
+    //         const error = new Error(err);
+    //         error.httpStatusCode = 500;
+    //         return next(error);
+
+    //     }
+    // );
+
+    const page = +req.query.page || 1;
+
+    Product.countDocuments().then(
+        numProducts => {
+            totalItems = numProducts;
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+        }
+    ).then(
         products => {
             res.render('shop/product-list', {
-                prods: products, docTitle: 'All Products', path: '/products', isAuthenticated: req.session.isLoggedIn
+                prods: products, docTitle: 'All Products', path: '/products', currentPage: page, hasNextPage: ITEMS_PER_PAGE * page < totalItems, hasPreviousPage: page > 1, nextPage: page + 1, previousPage: page - 1, lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE), isAuthenticated: req.session.isLoggedIn
             });
         }
     ).catch(
@@ -72,10 +98,19 @@ exports.getIndex = (req, res, next) => {
     // );
     // res.sendFile(path.join(rootDir , 'views' , 'shops.html')); // Sends a response
 
-    Product.find().then(
+    const page = +req.query.page || 1;
+
+    Product.countDocuments().then(
+        numProducts => {
+            totalItems = numProducts;
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
+        }
+    ).then(
         products => {
             res.render('shop/index', {
-                prods: products, docTitle: 'Shop', path: '/', isAuthenticated: req.session.isLoggedIn
+                prods: products, docTitle: 'Shop', path: '/', currentPage: page, hasNextPage: ITEMS_PER_PAGE * page < totalItems, hasPreviousPage: page > 1, nextPage: page + 1, previousPage: page - 1, lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             });
         }
     ).catch(
