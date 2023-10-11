@@ -1,13 +1,13 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 // const Cart = require('../models/cart');
-
+const stripe = require('stripe')('sk_test_51NzYYhSIgIRHS72xZLD70RFN9YTcFOF1Lx3ahOH8qH6uv2W7kCHYLD1Mq1lhcwlYYjwQ2j5dp4P9dYllVWqeVw7h00zlqGrLZB');
 const pdfDocument = require('pdfkit');
 
 const fs = require('fs');
 const path = require('path');
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 
 exports.getProducts = (req, res, next) => {
     // Product.fetchAll()
@@ -321,10 +321,22 @@ exports.postOrder = (req, res, next) => {
     //     }
     // );
 
+    const token = req.body.stripeToken;
+    let totalSum = 0;
+
+    console.log(req.user)
+
     req.user
         .populate("cart.items.productId") //populate does not return a promise so we use execPopulate
         .then(
             user => {
+                console.log("user" , user)
+                user.cart.items.forEach(
+                    p => {
+                        totalSum += p.quantity * p.productId.price;
+                    }
+                );
+                
                 const products = user.cart.items.map(i => {
                     return { quantity: i.quantity, product: { ...i.productId._doc } };
                 }
@@ -341,6 +353,15 @@ exports.postOrder = (req, res, next) => {
             }
         ).then(
             result => {
+                const charge = stripe.paymentIntents.create({
+                    amount: totalSum * 100,     // Charging Rs 25
+                    description: 'Demo Order',
+                    currency: 'usd',
+                    automatic_payment_methods: {
+                        enabled: true,
+                    },
+                    metadata : {order_id : result._id.toString()}
+                });
                 return req.user.clearCart();
             }
         ).then(
@@ -355,6 +376,34 @@ exports.postOrder = (req, res, next) => {
 
             }
         );
+};
+
+exports.getCheckout = (req, res, next) => {
+    
+    req.user
+        .populate("cart.items.productId") //populate does not return a promise so we use execPopulate
+        .then(
+            user => {
+                const products = user.cart.items;
+                let total = 0;
+                products.forEach(
+                    p => {
+                        total += p.quantity * p.productId.price;
+                    }
+                );
+                console.log(user);
+                res.render('shop/checkout', { docTitle: 'checkout', path: '/checkout', products: products, totalSum: total});
+            }
+        ).catch(
+            err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+
+            }
+        );
+    
+
 };
 
 exports.getInvoice = (req, res, next) => {  

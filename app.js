@@ -23,6 +23,8 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const isAuth = require('./middleware/is-auth');
+const shopController = require('./controllers/shop');
 
 // const db = require('./utils/database');
 
@@ -77,16 +79,15 @@ app.use(session(
     {secret : "my secret" , resave: false , saveUninitialized: false , store: store}
 ))
 
-app.use(csrfProtection);
-app.use(flash());
-
 app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    console.log("app");
-    res.locals.csrfToken = req.csrfToken();
-    console.log("app" , req.csrfToken());   
+    res.locals.isAuthenticated = req.session.isLoggedIn;  
     next();
 });
+
+
+
+app.use(flash());
+
 
 
 app.use((req, res, next) => {
@@ -120,7 +121,14 @@ app.use((req, res, next) => {
 });
 
 
-
+app.post('/create-order' , isAuth , shopController.postOrder);
+app.use(csrfProtection);
+app.use((req, res, next) => {
+    console.log("app");
+    res.locals.csrfToken = req.csrfToken();
+    console.log("app" , req.csrfToken());   
+    next();
+});
 
 
 
